@@ -1,0 +1,3 @@
+[submodule "HellGround.rb"]
+	path = HellGround
+	url = https://github.com/Siarkowy/HellGround.rb.git
