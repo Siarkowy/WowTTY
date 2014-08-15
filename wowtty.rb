@@ -7,10 +7,10 @@
 require 'io/console'
 require 'optparse'
 
-require_relative 'HellGround/Protocol'
+require_relative 'hellground/protocol'
 
 module WowTTY
-  require_relative 'WowTTY/SlashCommands'
+  require_relative 'wowtty/slash_commands'
 
   class KeyboardHandler < EM::Connection
     include EM::Protocols::LineText2
