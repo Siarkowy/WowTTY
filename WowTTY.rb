@@ -1,8 +1,9 @@
+#!/usr/bin/env ruby
+#
 # WowTTY, HellGround Core console chat client written in Ruby
 # Copyright (C) 2014 Siarkowy <siarkowy@siarkowy.net>
 # See LICENSE file for more information on licensing.
 
-require 'eventmachine'
 require 'io/console'
 require 'optparse'
 
