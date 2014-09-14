@@ -28,13 +28,13 @@ module WowTTY
     include SlashCommands
 
     def initialize
-      puts %q<
+      puts %q{
  _ _ _           _____ _____ __ __ 
 | | | |___ _ _ _|_   _|_   _|  |  |
 | | | | . | | | | | |   | | |_   _|
 |_____|___|_____| |_|   |_|   |_|  
 
->
+}
       @options = {
         host: 'logon.hellground.net',
         port: 3724,
