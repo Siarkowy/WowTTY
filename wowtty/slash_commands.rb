@@ -61,7 +61,7 @@ module WowTTY::SlashCommands
       return if @social.nil?
 
       puts 'Friends:'
-      @social.friends.each { |guid, social| puts social.to_char }
+      @social.online.each { |guid, social| puts social.to_char }
     }
   end
 

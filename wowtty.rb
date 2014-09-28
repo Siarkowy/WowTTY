@@ -6,8 +6,16 @@
 
 require 'io/console'
 require 'optparse'
+require 'hexdump'
 
 require_relative 'hellground/protocol'
+
+class HellGround::Packet
+  def dump
+    puts self
+    data.hexdump
+  end
+end
 
 module WowTTY
   require_relative 'wowtty/slash_commands'
@@ -103,7 +111,7 @@ module WowTTY
           self, @options[:user], @options[:pass]) do |h|
 
           h.on(:packet_received, :packet_sent) do |pk|
-            puts pk if @options[:verbose]
+            pk.dump if @options[:verbose]
           end
 
           h.on(:auth_error) do |e|
