@@ -57,7 +57,7 @@ module WowTTY
           @options[:host] = host
         end
 
-        opts.on('-p', '--port PORT', Numeric, 'Port number') do |n|
+        opts.on('-P', '--port PORT', Numeric, 'Port number') do |n|
           @options[:port] = n
         end
 
@@ -65,7 +65,7 @@ module WowTTY
           @options[:user] = user
         end
 
-        opts.on('-P', '--pass PASS', 'Account password') do |pass|
+        opts.on('-p', '--pass PASS', 'Account password') do |pass|
           @options[:pass] = pass
         end
 
