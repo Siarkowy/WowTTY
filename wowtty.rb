@@ -18,7 +18,7 @@ class HellGround::Packet
 end
 
 module WowTTY
-  require_relative 'wowtty/slash_commands'
+  require_relative 'app/slash_commands'
 
   class KeyboardHandler < EM::Connection
     include EM::Protocols::LineText2
