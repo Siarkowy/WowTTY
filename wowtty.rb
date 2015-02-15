@@ -7,6 +7,7 @@
 require 'io/console'
 require 'optparse'
 require 'hexdump'
+require 'uri'
 
 require_relative 'hellground/protocol'
 
@@ -75,6 +76,16 @@ module WowTTY
 
         opts.on('-j', '--join chan1,chan2,...', Array, 'Channels to join after login') do |l|
           @options[:chans] = l
+        end
+
+        opts.on('-U', '--uri URI', 'Connection URI (user[:password][@host[:port]][/char])') do |uri|
+          uri = URI.parse(uri)
+          return unless uri
+          @options[:host] = uri.host || @options[:host]
+          @options[:port] = uri.port || @options[:port]
+          @options[:user] = uri.user || @options[:user]
+          @options[:pass] = uri.password || @options[:pass]
+          @options[:char] = uri.path && uri.path[1..-1] || @options[:char]
         end
 
         opts.on('-v', '--verbose', 'Output more information') do
