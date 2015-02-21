@@ -42,8 +42,7 @@ module WowTTY
 | | | |___ _ _ _|_   _|_   _|  |  |
 | | | | . | | | | | |   | | |_   _|
 |_____|___|_____| |_|   |_|   |_|  
-
-}
+      }
       @options = {
         host: 'logon.hellground.net',
         port: 3724,
@@ -101,15 +100,25 @@ module WowTTY
       optparse.parse!
 
       unless @options[:user]
-        print 'Enter user: '
-        @options[:user] = gets.chomp
+        begin
+          print 'Enter user: '
+          @options[:user] = gets.chomp
+        rescue Interrupt
+          return
+        end
       end
 
       unless @options[:pass]
-        print 'Enter pass: '
-        @options[:pass] = STDIN.noecho(&:gets).chomp
-        puts
+        begin
+          print 'Enter pass: '
+          @options[:pass] = STDIN.noecho(&:gets).chomp
+          puts
+        rescue Interrupt
+          return
+        end
       end
+
+      return if @options[:user].empty? || @options[:pass].empty?
 
       run!
     end
@@ -119,7 +128,7 @@ module WowTTY
         puts "Connecting to realm server at #{@options[:host]}:#{@options[:port]}."
 
         @conn = EM::connect(@options[:host], @options[:port], HellGround::Auth::Connection,
-          self, @options[:user], @options[:pass]) do |h|
+                            self, @options[:user], @options[:pass]) do |h|
 
           h.on(:packet_received, :packet_sent) do |pk|
             pk.dump if @options[:verbose]
