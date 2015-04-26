@@ -298,7 +298,7 @@ module WowTTY::SlashCommands
 
   # Sets verbose mode.
   on_slash :verbose do |cmd, args|
-    @verbose = args.to_sym == :on
+    @options[:verbose] = args.to_sym == :on
   end
 
   # Who query.
@@ -306,5 +306,13 @@ module WowTTY::SlashCommands
     @conn.instance_eval {
       send_data World::Packets::ClientNameQuery.new(args.to_i) unless @player.nil? || args.empty?
     }
+  end
+
+  on_slash :supress do |cmd, args|
+    args.split.each { |op| @opcode_verbose_flags[op.to_i(0)] = false }
+  end
+
+  on_slash :unsupress do |cmd, args|
+    args.split.each { |op| @opcode_verbose_flags[op.to_i(0)] = true }
   end
 end

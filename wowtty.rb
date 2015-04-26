@@ -18,6 +18,13 @@ class HellGround::Packet
   end
 end
 
+class HellGround::World::Packet
+  def dump
+    puts self
+    @data[0..(hdrsize+2)].hexdump
+  end
+end
+
 module WowTTY
   require_relative 'app/slash_commands'
 
@@ -38,10 +45,10 @@ module WowTTY
 
     def initialize
       puts %q{
- _ _ _           _____ _____ __ __ 
+ _ _ _           _____ _____ __ __
 | | | |___ _ _ _|_   _|_   _|  |  |
 | | | | . | | | | | |   | | |_   _|
-|_____|___|_____| |_|   |_|   |_|  
+|_____|___|_____| |_|   |_|   |_|
       }
       @options = {
         host: 'logon.hellground.net',
@@ -49,6 +56,8 @@ module WowTTY
         chans: ['world'],
         verbose: false,
       }
+
+      @opcode_verbose_flags = {}
 
       optparse = OptionParser.new do |opts|
         opts.banner = "Usage: WowTTY.rb [options]"
@@ -131,7 +140,11 @@ module WowTTY
                             self, @options[:user], @options[:pass]) do |h|
 
           h.on(:packet_received, :packet_sent) do |pk|
-            pk.dump if @options[:verbose]
+            if @options[:verbose]
+              if !@opcode_verbose_flags.has_key?(pk.opcode) || @opcode_verbose_flags[pk.opcode]
+                pk.dump
+              end
+            end
           end
 
           h.on(:auth_error) do |e|
@@ -155,7 +168,7 @@ module WowTTY
             @conn = conn
           end
 
-          h.on(:world_opened) do 
+          h.on(:world_opened) do
             puts 'World connection opened.'
           end
 
