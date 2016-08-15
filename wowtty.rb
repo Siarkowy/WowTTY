@@ -105,6 +105,11 @@ module WowTTY
           @options[:verbose] = true
         end
 
+        opts.on('-n', '--redirect-notifications DESTINATION',
+            'Notification output redirection') do |destination|
+          @options[:notification_redirect] = destination
+        end
+
         opts.on('-V', '--redirect-verbose DESTINATION') do |destination|
           @options[:verbose_redirect] = destination
         end
@@ -223,7 +228,13 @@ module WowTTY
           end
 
           h.on(:server_notification_received, :channel_notification_received) do |ntfy|
-            puts "#{timestamp} <Notification> #{ntfy}"
+            if @options[:notification_redirect]
+              open(@options[:notification_redirect], 'a') do |pipe|
+                pipe.puts "#{timestamp} #{ntfy}"
+              end
+            else
+              puts "#{timestamp} <Notification> #{ntfy}"
+            end
           end
 
           h.on(:player_not_found) do |name|
