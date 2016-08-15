@@ -12,16 +12,20 @@ require 'uri'
 require_relative 'hellground/protocol'
 
 class HellGround::Packet
-  def dump
-    puts self
-    data.hexdump
+  # Dumps packet description and contents to specified stream (defaults to $stdout).
+  # @param output [#puts] Stream to output packet to.
+  def dump(output = nil)
+    (output || $stdout).puts self
+    data.hexdump(output: output)
   end
 end
 
 class HellGround::World::Packet
-  def dump
-    puts self
-    @data[0..(hdrsize+2)].hexdump
+  # Dumps packet description and contents to specified stream (defaults to $stdout).
+  # @param output [#puts] Stream to output packet to.
+  def dump(output = nil)
+    (output || $stdout).puts self
+    @data[0..(hdrsize+2)].hexdump(output: output)
   end
 end
 
@@ -101,6 +105,10 @@ module WowTTY
           @options[:verbose] = true
         end
 
+        opts.on('-V', '--redirect-verbose DESTINATION') do |destination|
+          @options[:verbose_redirect] = destination
+        end
+
         opts.on('-d', '--date-format FORMAT', 'Date format to Time#strftime function') do |fmt|
           @options[:dateformat] = fmt
         end
@@ -145,8 +153,12 @@ module WowTTY
                             self, @options[:user], @options[:pass]) do |h|
 
           h.on(:packet_received, :packet_sent) do |pk|
-            if @options[:verbose]
-              if !@opcode_verbose_flags.has_key?(pk.opcode) || @opcode_verbose_flags[pk.opcode]
+            next unless @options[:verbose]
+
+            if !@opcode_verbose_flags.has_key?(pk.opcode) || @opcode_verbose_flags[pk.opcode]
+              if @options[:verbose_redirect]
+                open(@options[:verbose_redirect], 'a') { |pipe| pk.dump pipe }
+              else
                 pk.dump
               end
             end
