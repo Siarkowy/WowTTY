@@ -147,7 +147,7 @@ module WowTTY
 
     def run!
       EM::run do
-        puts "Connecting to realm server at #{@options[:host]}:#{@options[:port]}."
+        puts "#{timestamp} Connecting to realm server at #{@options[:host]}:#{@options[:port]}."
 
         @conn = EM::connect(@options[:host], @options[:port], HellGround::Auth::Connection,
                             self, @options[:user], @options[:pass]) do |h|
@@ -165,20 +165,20 @@ module WowTTY
           end
 
           h.on(:auth_error) do |e|
-            puts "Authentication error: #{e.message}."
+            puts "#{timestamp} Authentication error: #{e.message}."
             exit 1
           end
 
           h.on(:auth_succeeded) do
-            puts 'Requesting realm list from the server.'
+            puts "#{timestamp} Requesting realm list from the server."
           end
 
           h.on(:realmlist_discovered) do |name, addr|
-            puts "Discovered realm #{name} at #{addr}."
+            puts "#{timestamp} Discovered realm #{name} at #{addr}."
           end
 
           h.on(:realmlist_selected) do |name, host, port|
-            puts "Connecting to world server #{name} at #{host}:#{port}."
+            puts "#{timestamp} Connecting to world server #{name} at #{host}:#{port}."
           end
 
           h.on(:reconnected) do |conn|
@@ -186,12 +186,12 @@ module WowTTY
           end
 
           h.on(:world_opened) do
-            puts 'World connection opened.'
+            puts "#{timestamp} World connection opened."
           end
 
           h.on(:character_enum) do |world|
             if @options[:char] && world.login(@options[:char])
-              puts "Logging in as #{@options[:char]}."
+              puts "#{timestamp} Logging in as #{@options[:char]}."
               @options[:char] = nil
             else
               puts "Select character:"
@@ -200,13 +200,13 @@ module WowTTY
           end
 
           h.on(:login_succeeded) do |world|
-            puts 'Login successful.'
+            puts "#{timestamp} Login successful."
 
             @options[:chans].each { |chan| world.chat.join chan }
           end
 
           h.on(:logout_succeeded) do
-            puts 'Logout successful.'
+            puts "#{timestamp} Logout successful."
           end
 
           h.on(:motd_received) do |motd|
@@ -231,7 +231,7 @@ module WowTTY
           end
 
           h.on(:world_closed) do
-            puts "World connection closed."
+            puts "#{timestamp} World connection closed."
           end
         end
 
