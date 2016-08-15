@@ -55,10 +55,11 @@ module WowTTY
 |_____|___|_____| |_|   |_|   |_|
       }
       @options = {
+        chans: ['world'],
         host: 'logon.hellground.net',
+        channel_redirects: Hash.new { |h, k| h[k] = [] },
         dateformat: '%H:%M',
         port: 3724,
-        chans: ['world'],
         verbose: false,
       }
 
@@ -105,6 +106,12 @@ module WowTTY
           @options[:verbose] = true
         end
 
+        opts.on('-r', '--redirect-channel CHANNEL:DESTINATION',
+            'Channel output redirection') do |data|
+          channel, destination = data.split ':'
+          @options[:channel_redirects][channel] << destination
+        end
+
         opts.on('-n', '--redirect-notifications DESTINATION',
             'Notification output redirection') do |destination|
           @options[:notification_redirect] = destination
@@ -116,6 +123,10 @@ module WowTTY
 
         opts.on('-d', '--date-format FORMAT', 'Date format to Time#strftime function') do |fmt|
           @options[:dateformat] = fmt
+        end
+
+        opts.on('-m', '--message-format FORMAT', 'Chat message format string') do |fmt|
+          @options[:msgformat] = fmt
         end
 
         opts.on_tail('-h', '--help', 'Display this screen') do
@@ -224,7 +235,17 @@ module WowTTY
           end
 
           h.on(:message_received) do |msg|
-            puts "#{timestamp} #{msg}"
+            if @options[:channel_redirects].include?(msg.to.to_s) ||
+                @options[:channel_redirects].include?(msg.type.to_s)
+              (@options[:channel_redirects][msg.to.to_s] +
+                  @options[:channel_redirects][msg.type.to_s]).each do |destination|
+                open(destination, 'a') do |pipe|
+                  pipe.puts "#{timestamp} #{msg.to_s(@options[:msgformat])}"
+                end
+              end
+            else
+              puts "#{timestamp} #{msg}" unless msg.lang == HellGround::World::ChatMessage::LANG_ADDON
+            end
           end
 
           h.on(:server_notification_received, :channel_notification_received) do |ntfy|
