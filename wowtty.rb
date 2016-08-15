@@ -52,6 +52,7 @@ module WowTTY
       }
       @options = {
         host: 'logon.hellground.net',
+        dateformat: '%H:%M',
         port: 3724,
         chans: ['world'],
         verbose: false,
@@ -98,6 +99,10 @@ module WowTTY
 
         opts.on('-v', '--verbose', 'Output more information') do
           @options[:verbose] = true
+        end
+
+        opts.on('-d', '--date-format FORMAT', 'Date format to Time#strftime function') do |fmt|
+          @options[:dateformat] = fmt
         end
 
         opts.on_tail('-h', '--help', 'Display this screen') do
@@ -223,7 +228,7 @@ module WowTTY
     end
 
     def timestamp
-      Time.now.strftime("%H:%M")
+      Time.now.strftime(@options[:dateformat])
     end
   end
 end
