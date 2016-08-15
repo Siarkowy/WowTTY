@@ -66,35 +66,40 @@ module WowTTY
       @opcode_verbose_flags = {}
 
       optparse = OptionParser.new do |opts|
-        opts.banner = "Usage: WowTTY.rb [options]"
+        opts.banner = "Usage: #{$0} [options]"
 
-        opts.on('-H', '--host ADDR', 'Host name') do |host|
+        opts.on('-H', '--host ADDRESS', 'Sets server host name to connect to.') do |host|
           @options[:host] = host
         end
 
-        opts.on('-P', '--port PORT', Numeric, 'Port number') do |n|
-          @options[:port] = n
+        opts.on('-P', '--port PORT', Numeric, 'Sets port number on target host.') do |port|
+          @options[:port] = port
         end
 
-        opts.on('-u', '--user NAME', 'Account name') do |user|
+        opts.on('-u', '--user ACCOUNT', 'Specifies account name.') do |user|
           @options[:user] = user
         end
 
-        opts.on('-p', '--pass PASS', 'Account password') do |pass|
+        opts.on('-p', '--pass PASSWORD', 'Specifies account password.') do |pass|
           @options[:pass] = pass
         end
 
-        opts.on('-c', '--char NAME', 'Character to use on login') do |char|
+        opts.on('-c', '--char CHARACTER', 'Selects character to log in to.') do |char|
           @options[:char] = char
         end
 
-        opts.on('-j', '--join chan1,chan2,...', Array, 'Channels to join after login') do |l|
-          @options[:chans] = l
+        opts.on('-j', '--join chan1,chan2,...', Array, 'Sets channels to join after login, comma separated list.') do |chans|
+          @options[:chans] = chans
         end
 
-        opts.on('-U', '--uri URI', 'Connection URI (user[:password][@host[:port]][/char])') do |uri|
-          uri = URI.parse(uri)
-          return unless uri
+        opts.on('-U', '--uri URI', 'Specifies shorthand connection URI: //[account[:password]@]host[:port][/character]') do |uri|
+          begin
+            uri = URI.parse(uri)
+          rescue URI::InvalidURIError => e
+            puts "Error: incorrect URI specified through -U option: #{e}"
+            exit 2
+          end
+
           @options[:host] = uri.host || @options[:host]
           @options[:port] = uri.port || @options[:port]
           @options[:user] = uri.user || @options[:user]
@@ -102,36 +107,37 @@ module WowTTY
           @options[:char] = uri.path && uri.path[1..-1] || @options[:char]
         end
 
-        opts.on('-v', '--verbose', 'Output more information') do
-          @options[:verbose] = true
+        opts.on('-v', '--verbose', 'Enables verbose mode to dump packets.') do |v|
+          @options[:verbose] = v
         end
 
         opts.on('-r', '--redirect-channel CHANNEL:DESTINATION',
-            'Channel output redirection') do |data|
+            'Adds output redirection for specified channel or chat type. Can be used multiple times with multiple -r switches. Destination will be appended to.') do |data|
           channel, destination = data.split ':'
           @options[:channel_redirects][channel] << destination
         end
 
         opts.on('-n', '--redirect-notifications DESTINATION',
-            'Notification output redirection') do |destination|
+            'Specifies output redirection for channel and server notifications. Destination will be appended to.') do |destination|
           @options[:notification_redirect] = destination
         end
 
-        opts.on('-V', '--redirect-verbose DESTINATION') do |destination|
+        opts.on('-V', '--redirect-verbose DESTINATION',
+            'Specifies output redirection for verbose mode. Destination will be appended to.') do |destination|
           @options[:verbose_redirect] = destination
         end
 
-        opts.on('-d', '--date-format FORMAT', 'Date format to Time#strftime function') do |fmt|
+        opts.on('-d', '--date-format FORMAT', 'Sets date format for timestamps. Accepts valid Time#strftime format strings.') do |fmt|
           @options[:dateformat] = fmt
         end
 
-        opts.on('-m', '--message-format FORMAT', 'Chat message format string') do |fmt|
+        opts.on('-m', '--message-format FORMAT', 'Specifies chat message template string. May contain following elements: %{type} %{sender} %{sep} %{text} %{rawtype} %{lang} %{guid} %{rawtext} %{to}.') do |fmt|
           @options[:msgformat] = fmt
         end
 
-        opts.on_tail('-h', '--help', 'Display this screen') do
+        opts.on_tail('-h', '--help', 'Displays the help screen and exits successfully.') do
           puts opts
-          exit
+          exit 0
         end
       end
 
