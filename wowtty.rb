@@ -224,10 +224,17 @@ module WowTTY
           h.on(:login_succeeded) do |world|
             puts "#{timestamp} Login successful."
 
+            @guild_timer = EM::PeriodicTimer.new(8) do
+              @conn.instance_eval {
+                send_data World::Packets::ClientGuildRoster.new unless @player.nil?
+              }
+            end
+
             @options[:chans].each { |chan| world.chat.join chan }
           end
 
           h.on(:logout_succeeded) do
+            @guild_timer.cancel if @guild_timer
             puts "#{timestamp} Logout successful."
           end
 
