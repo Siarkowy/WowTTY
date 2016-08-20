@@ -47,13 +47,9 @@ module WowTTY
   class App
     include SlashCommands
 
+    Version = '1.1'
+
     def initialize
-      puts %q{
- _ _ _           _____ _____ __ __
-| | | |___ _ _ _|_   _|_   _|  |  |
-| | | | . | | | | | |   | | |_   _|
-|_____|___|_____| |_|   |_|   |_|
-      }
       @options = {
         chans: ['world'],
         host: 'logon.hellground.net',
@@ -139,9 +135,21 @@ module WowTTY
           puts opts
           exit 0
         end
+
+        opts.on_tail('--version', 'Shows version info') do
+          puts Version
+          exit 0
+        end
       end
 
       optparse.parse!
+
+      puts %q{
+ _ _ _           _____ _____ __ __
+| | | |___ _ _ _|_   _|_   _|  |  |
+| | | | . | | | | | |   | | |_   _|
+|_____|___|_____| |_|   |_|   |_|
+      }
 
       unless @options[:user]
         begin
